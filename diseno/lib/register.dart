@@ -1,17 +1,20 @@
-import 'package:diseno/dash.dart';
-import 'package:diseno/register.dart';
+import 'package:diseno/login.dart';
 import 'package:diseno/service/graph_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class LoginPage extends StatefulWidget {
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({ Key? key }) : super(key: key);
+
   @override
-  _LoginPageState createState() => _LoginPageState();
+  _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   TextEditingController _usernameController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+  TextEditingController _confirmPasswordController = TextEditingController();
 
   Future<void> _showMyDialog() async {
     return showDialog<void>(
@@ -23,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
           content: const SingleChildScrollView(
             child: ListBody(
               children: <Widget>[
-                Text('Usuario o contraseña incorrectos'),
+                Text('Ha habido un error al registrar el usuario, intente de nuevo.'),
               ],
             ),
           ),
@@ -43,8 +46,23 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     var authService = Provider.of<AuthService>(context, listen: false);
-
+    
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          'Volver',
+          style: TextStyle(color: Color(0xFF4353F7)),
+        ),
+        iconTheme: IconThemeData(color: Color(0xFF4353F7)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -54,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 children: [
                   Icon(
-                    Icons.account_circle,
+                    Icons.people, // Cambiado a Icons.people
                     size: 60.0,
                     color: Color(0xFF4353F7),
                   ),
@@ -94,6 +112,29 @@ class _LoginPageState extends State<LoginPage> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: TextField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          border: InputBorder.none,
+                          filled: false,
+                          contentPadding: EdgeInsets.only(right: 8.0),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 247, 245, 241),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: TextField(
                         controller: _passwordController,
                         decoration: InputDecoration(
                           labelText: 'Password',
@@ -105,21 +146,46 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
+                  SizedBox(height: 16.0),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 247, 245, 241),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(20.0),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: TextField(
+                        controller: _confirmPasswordController,
+                        decoration: InputDecoration(
+                          labelText: 'Confirm Password',
+                          border: InputBorder.none,
+                          filled: false,
+                          contentPadding: EdgeInsets.only(right: 8.0),
+                        ),
+                        obscureText: true,
+                      ),
+                    ),
+                  ),
                   SizedBox(height: 24.0),
                   ElevatedButton(
-                    onPressed: () async {
+                    onPressed: () async{
                       print('Username: ${_usernameController.text}');
+                      print('Email: ${_emailController.text}');
                       print('Password: ${_passwordController.text}');
+                      print('Confirm Password: ${_confirmPasswordController.text}');
+
                       authService.autenticando = true;
-                      final token =
-                          await authService.login(_usernameController.text, _passwordController.text);
+                      bool register =
+                          await authService.register(_usernameController.text, _emailController.text, _passwordController.text, _confirmPasswordController.text);
                       authService.autenticando = false;
-                      if (token != null) {
-                        print(token);
-                        print('Login');
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => DashPage()));
+                      if(register){
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));
                       } else {
-                        print("error");
+                        print('ERROR');
                         _showMyDialog();
                       }
                     },
@@ -134,44 +200,13 @@ class _LoginPageState extends State<LoginPage> {
                     child: Ink(
                       child: Container(
                         constraints:
-                            BoxConstraints(maxWidth: 100.0, minHeight: 35.0),
+                            BoxConstraints(maxWidth: 150.0, minHeight: 35.0),
                         alignment: Alignment.center,
                         child: Text(
-                          'Login',
+                          'Registrarse',
                           style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                       ),
-                    ),
-                  ),
-                  SizedBox(height: 12.0),
-                  TextButton(
-                    onPressed: () {
-                      print('¿Aun no tienes cuenta?');
-                    },
-                    style: TextButton.styleFrom(
-                      primary: Color(0xFF4353F7),
-                    ),
-                    child: Text(
-                      '¿Aun no tienes cuenta?',
-                      style: TextStyle(color: Color(0xFF4353F7)),
-                    ),
-                  ),
-                  SizedBox(height: 12.0),
-                  OutlinedButton(
-                    onPressed: () {
-                      print('Registrarse');
-                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => RegisterPage()));
-                    },
-                    style: OutlinedButton.styleFrom(
-                      primary: Color(0xFF4353F7),
-                      side: BorderSide(color: Color(0xFF4353F7), width: 1.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                    ),
-                    child: Text(
-                      'Registrarse',
-                      style: TextStyle(color: Color(0xFF4353F7)),
                     ),
                   ),
                 ],
