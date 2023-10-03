@@ -42,4 +42,47 @@ class AuthService with ChangeNotifier {
     
     return token;
   }
+
+  Future<bool> register(String username, String email, String password1, String password2) async {
+    final HttpLink httpLink = HttpLink(
+      urlApi
+    );
+
+    final GraphQLClient client = GraphQLClient(
+      cache: GraphQLCache(),
+      link: httpLink,
+    );
+
+    final MutationOptions options = MutationOptions(
+      document: gql('''
+        mutation RegisterUser(\$username: String!, \$email: String!, \$password1: String!, \$password2: String! ){
+          register(username: \$username, email: \$email, password1: \$password1, password2: \$password2){
+            success,
+            errors,
+            token
+          }
+        }
+      '''),
+      variables: <String, dynamic>{
+        'username': username,
+        'email': email,
+        'password1': password1,
+        'password2': password2,
+      },
+    );
+
+    final QueryResult result = await client.mutate(options);
+
+    print(result);
+
+    final bool success = result.data?['register']['success'];
+
+    print(success);
+
+    if (result.hasException || success == false) {
+      return false;
+    }
+
+    return true;
+  }
 }

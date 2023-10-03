@@ -1,4 +1,5 @@
 import 'package:diseno/dash.dart';
+import 'package:diseno/register.dart';
 import 'package:diseno/service/graph_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,33 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Usuario o contraseña incorrectos'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Ok'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                         Navigator.of(context).push(MaterialPageRoute(builder: (context) => DashPage()));
                       } else {
                         print("error");
+                        _showMyDialog();
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -131,6 +160,7 @@ class _LoginPageState extends State<LoginPage> {
                   OutlinedButton(
                     onPressed: () {
                       print('Registrarse');
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context) => RegisterPage()));
                     },
                     style: OutlinedButton.styleFrom(
                       primary: Color(0xFF4353F7),
