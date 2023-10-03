@@ -1,14 +1,52 @@
+import 'package:diseno/login.dart';
+import 'package:diseno/service/graph_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({ Key? key }) : super(key: key);
 
-class RegisterPage extends StatelessWidget {
+  @override
+  _RegisterPageState createState() => _RegisterPageState();
+}
+
+class _RegisterPageState extends State<RegisterPage> {
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
 
+  Future<void> _showMyDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: const SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Ha habido un error al registrar el usuario, intente de nuevo.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Ok'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    var authService = Provider.of<AuthService>(context, listen: false);
+    
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -134,11 +172,22 @@ class RegisterPage extends StatelessWidget {
                   ),
                   SizedBox(height: 24.0),
                   ElevatedButton(
-                    onPressed: () {
+                    onPressed: () async{
                       print('Username: ${_usernameController.text}');
                       print('Email: ${_emailController.text}');
                       print('Password: ${_passwordController.text}');
                       print('Confirm Password: ${_confirmPasswordController.text}');
+
+                      authService.autenticando = true;
+                      bool register =
+                          await authService.register(_usernameController.text, _emailController.text, _passwordController.text, _confirmPasswordController.text);
+                      authService.autenticando = false;
+                      if(register){
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));
+                      } else {
+                        print('ERROR');
+                        _showMyDialog();
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       primary: Color(0xFF4353F7),
