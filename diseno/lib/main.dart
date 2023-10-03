@@ -1,7 +1,15 @@
+import 'package:diseno/login.dart';
+import 'package:diseno/register.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'service/graph_service.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(ChangeNotifierProvider(
+      create: (context) => AuthService(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -45,7 +53,7 @@ class MainPage extends StatelessWidget {
             SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
-                // Agrega aquí la lógica para ir a la página de Login
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => LoginPage()));
               },
               style: ElevatedButton.styleFrom(
                 primary: Colors.white, // Fondo blanco
@@ -69,7 +77,7 @@ class MainPage extends StatelessWidget {
             SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
-                // Agrega aquí la lógica para ir a la página de Registro
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) => RegisterPage()));
               },
               style: ElevatedButton.styleFrom(
                 primary: Colors.transparent, // Sin fondo
